@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Wreck A Nice Beach</string>
+    <string name="action_settings">Settings</string>
+    <string name="edit_message">Enter a message</string>
+    <string name="button_send">Send</string>
+    <string name="title_activity_display_message">MyMessage</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="check_schedule">Check Schedule</string>
+    <string name="find_stop">Find Stop</string>
+    <string name="get_directions">Get Directions</string>
+    <string name="speak">Speak</string>
+    <string name="title_activity_check_schedule">CheckScheduleActivity</string>
+    <string name="title_activity_find_stop">FindStopActivity</string>
+    <string name="title_activity_get_directions">GetDirectionsActivity</string>
+    <string name="connection_error">Sorry, connection error.</string>
+    <string name="xml_error">Sorry, XML error.</string>
+
+</resources>
