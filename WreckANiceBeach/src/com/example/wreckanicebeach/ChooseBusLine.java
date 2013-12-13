@@ -4,8 +4,10 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.support.v4.app.NavUtils;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.Build;
 
 public class ChooseBusLine extends Activity {
@@ -50,6 +52,32 @@ public class ChooseBusLine extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	public void toShowSchedule(View view) {
+		String routeId = getRouteId(view);
+    	Intent intent = new Intent(this, ShowSchedule.class);
+    	intent.putExtra("ROUTE_ID", routeId);
+    	startActivity(intent);
+    }
+	
+	private String getRouteId(View view) {
+		String routeId = "";
+		switch (view.getId()) {
+			case (R.id.one_button):
+				routeId = "01";
+				break;
+			case (R.id.sixty_six_button):
+				routeId = "66";
+				break;
+			case (R.id.seventy_three_button):
+				routeId = "73";
+				break;
+			case (R.id.seventy_four_button):
+				routeId = "74";
+				break;
+		}
+		return routeId;
 	}
 
 }

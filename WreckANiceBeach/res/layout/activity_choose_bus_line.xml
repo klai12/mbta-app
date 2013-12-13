@@ -10,17 +10,39 @@
     tools:context=".ChooseBusLine" >
     
     <Button
+        android:id="@+id/one_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:text="@string/seventy_three" >
+        android:text="@string/one"
+        android:onClick="toShowSchedule" >
     </Button>
     
     <Button
+        android:id="@+id/sixty_six_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:text="@string/seventy_four" >
+        android:text="@string/sixty_six"
+        android:onClick="toShowSchedule" >
+    </Button>
+    
+    <Button
+        android:id="@+id/seventy_three_button"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="@string/seventy_three"
+        android:onClick="toShowSchedule" >
+    </Button>
+    
+    <Button
+        android:id="@+id/seventy_four_button"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="@string/seventy_four"
+        android:onClick="toShowSchedule" >
     </Button>
 
 </LinearLayout>

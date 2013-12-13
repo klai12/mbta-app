@@ -57,8 +57,23 @@ public class ChooseSubwayLine extends Activity {
 	}
 	
 	public void toShowSchedule(View view) {
+		String routeId = getRouteId(view);
     	Intent intent = new Intent(this, ShowSchedule.class);
+    	intent.putExtra("ROUTE_ID", routeId);
     	startActivity(intent);
     }
+	
+	private String getRouteId(View view) {
+		String routeId = "";
+		switch (view.getId()) {
+			case (R.id.redButton):
+				routeId = "931_";
+				break;
+			case (R.id.greenButton):
+				routeId = "810_";
+				break;
+		}
+		return routeId;
+	}
 
 }
