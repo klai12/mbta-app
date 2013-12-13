@@ -1,8 +1,11 @@
 package com.example.wreckanicebeach;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -83,9 +86,24 @@ public class SpeakActivity extends Activity {
 	}
 
 	public void parse(View view, String result) {
-		String FIND_STOP = ".*(find|stop|where|station).*";
-		if (result.matches(FIND_STOP)) {
+		String findStop = ".*(find|stop|where|station).*";
+		if (result.matches(findStop)) {
 			Intent intent = new Intent(this, FindStopActivity.class);
+			Pattern route = Pattern
+					.compile("\\d+|ct1|ct2|ct3|34 E|70 A|Mattapan|Fairmount|Fitchburg|South Acton|Framingham|Worcester|Franklin|Greenbush|Haverhill|Kingston|Plymouth|Lowell|Middleborough|Lakeville|Needham|Newburyport|Rockport|Providence|Stoughton|Hingham|Hull|Charlestown");
+			Pattern subwayRoute = Pattern.compile("red|orange|green|blue|silver", Pattern.CASE_INSENSITIVE);
+			Pattern mode = Pattern.compile("bus|subway|rail|commuter rail|boat|ferry");
+			Matcher routeMatcher = route.matcher(result);
+			Matcher subwayRouteMatcher = subwayRoute.matcher(result);
+			Matcher modeMatcher = mode.matcher(result);
+			Log.d("SpeakActivity", result);
+			if (routeMatcher.find(0)) {
+				intent.putExtra("ROUTE", routeMatcher.group());
+			} else if (subwayRouteMatcher.find(0)) {
+				intent.putExtra("SUBWAY_ROUTE", subwayRouteMatcher.group());
+			} else if (modeMatcher.find(0)) {
+				intent.putExtra("MODE", modeMatcher.group());
+			}
 			startActivity(intent);
 		} else {
 			TextView textView = (TextView) findViewById(R.id.textview);

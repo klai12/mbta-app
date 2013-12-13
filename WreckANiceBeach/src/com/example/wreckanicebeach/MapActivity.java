@@ -10,6 +10,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.annotation.TargetApi;
@@ -34,6 +35,7 @@ public class MapActivity extends FragmentActivity implements
 			setContentView(R.layout.activity_map);
 			// Show the Up button in the action bar.
 			setupActionBar();
+			setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 			// Get a handle to the Map Fragment
 			GoogleMap map = ((SupportMapFragment) getSupportFragmentManager()
