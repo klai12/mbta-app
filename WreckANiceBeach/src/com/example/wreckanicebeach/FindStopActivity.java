@@ -6,6 +6,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -53,7 +55,7 @@ public class FindStopActivity extends FragmentActivity implements
 	private final static String STOPS_BY_LOCATION = "http://realtime.mbta.com/developer/api/v1/stopsbylocation?api_key=";
 	private final static String STOPS_BY_ROUTE = "http://realtime.mbta.com/developer/api/v1/stopsbyroute?api_key=";
 	private final static String ROUTES_BY_STOP = "http://realtime.mbta.com/developer/api/v1/routesbystop?api_key=";
-	private final static String API_KEY = "wX9NwuHnZU2ToO7GmGR9uw";
+	private final static String API_KEY = "GF9GdCYGNEmHdd5sZiMzyw";
 	// We don't use namespaces
 	private static final String ns = null;
 	private boolean initFlag;
@@ -141,6 +143,7 @@ public class FindStopActivity extends FragmentActivity implements
 		}
 	}
 
+	// Contains a list of routes and a list of modes
 	public static class ListRouteMode {
 		public final List<Route> routes;
 		public final List<Mode> modes;
@@ -151,6 +154,7 @@ public class FindStopActivity extends FragmentActivity implements
 		}
 	}
 
+	// Parses an MBTA XML feed, returning a list of stops
 	public class MBTAXmlStopParser {
 
 		public List<Stop> parse(InputStream in) throws XmlPullParserException,
@@ -167,6 +171,7 @@ public class FindStopActivity extends FragmentActivity implements
 			}
 		}
 
+		// Returns a list of stops in the feed
 		private List<Stop> readFeed(XmlPullParser parser)
 				throws XmlPullParserException, IOException {
 			List<Stop> stops = new ArrayList<Stop>();
@@ -213,6 +218,7 @@ public class FindStopActivity extends FragmentActivity implements
 			return stop;
 		}
 
+		// Skips irrelevant tags
 		private void skip(XmlPullParser parser) throws XmlPullParserException,
 				IOException {
 			if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -233,6 +239,7 @@ public class FindStopActivity extends FragmentActivity implements
 
 	}
 
+	// Parses an MBTA XML feed, returning a list of routes and a list of modes
 	public class MBTAXmlRouteParser {
 
 		public ListRouteMode parse(InputStream in)
@@ -249,6 +256,7 @@ public class FindStopActivity extends FragmentActivity implements
 			}
 		}
 
+		// Returns a list of routes and a list of modes in the feed
 		private ListRouteMode readFeed(XmlPullParser parser)
 				throws XmlPullParserException, IOException {
 			List<Route> routes = new ArrayList<Route>();
@@ -300,12 +308,12 @@ public class FindStopActivity extends FragmentActivity implements
 			parser.require(XmlPullParser.START_TAG, ns, "mode");
 			String type = parser.getAttributeValue(null, "route_type");
 			String name = parser.getAttributeValue(null, "mode_name");
-			Log.d("type + name", type + name);
 			Mode mode = new Mode(type, name);
 			parser.nextTag();
 			return mode;
 		}
 
+		// Skips irrelevant tags
 		private void skip(XmlPullParser parser) throws XmlPullParserException,
 				IOException {
 			if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -326,7 +334,8 @@ public class FindStopActivity extends FragmentActivity implements
 
 	}
 
-	// Implementation of AsyncTask used to download XML feed from mbta.com.
+	// Implementation of AsyncTask used to download XML Stops By Location feed
+	// from mbta.com.
 	private class DownloadStopsByLocationTask extends
 			AsyncTask<String, Void, String> {
 		@Override
@@ -347,7 +356,8 @@ public class FindStopActivity extends FragmentActivity implements
 		}
 	}
 
-	// Implementation of AsyncTask used to download XML feed from mbta.com.
+	// Implementation of AsyncTask used to download XML Stops By Route feed from
+	// mbta.com.
 	private class DownloadStopsByRouteTask extends
 			AsyncTask<String, Void, String> {
 		@Override
@@ -368,7 +378,8 @@ public class FindStopActivity extends FragmentActivity implements
 		}
 	}
 
-	// Implementation of AsyncTask used to download XML feed from mbta.com.
+	// Implementation of AsyncTask used to download XML Routes By Stop feed from
+	// mbta.com.
 	private class DownloadRoutesByStopTask extends
 			AsyncTask<String, Void, String> {
 		@Override
@@ -517,6 +528,14 @@ public class FindStopActivity extends FragmentActivity implements
 	}
 
 	@Override
+	public void onInit(int status) {
+		if (status != TextToSpeech.SUCCESS) {
+			TextView textView = (TextView) findViewById(R.id.textview);
+			textView.setText("Sorry, text to speech not available.");
+		}
+	}
+
+	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
 		/*
 		 * Google Play services can resolve some errors it detects. If the error
@@ -579,14 +598,6 @@ public class FindStopActivity extends FragmentActivity implements
 				Toast.LENGTH_SHORT).show();
 	}
 
-	@Override
-	public void onInit(int status) {
-		if (status != TextToSpeech.SUCCESS) {
-			TextView textView = (TextView) findViewById(R.id.textview);
-			textView.setText("Sorry, text to speech not available.");
-		}
-	}
-
 	private boolean servicesConnected() {
 		// Check that Google Play services is available
 		int resultCode = GooglePlayServicesUtil
@@ -619,6 +630,21 @@ public class FindStopActivity extends FragmentActivity implements
 		}
 	}
 
+	// Given a string representation of a URL, sets up a connection and gets
+	// an input stream.
+	private InputStream downloadUrl(String urlString) throws IOException {
+		URL url = new URL(urlString);
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setReadTimeout(10000 /* milliseconds */);
+		conn.setConnectTimeout(15000 /* milliseconds */);
+		conn.setRequestMethod("GET");
+		conn.addRequestProperty("Accept", "application/xml");
+		conn.setDoInput(true);
+		// Starts the query
+		conn.connect();
+		return conn.getInputStream();
+	}
+
 	// Uses AsyncTask to download the XML feed from mbta.com.
 	public void loadPage(String urlString) {
 
@@ -643,10 +669,11 @@ public class FindStopActivity extends FragmentActivity implements
 			TextView textView = (TextView) findViewById(R.id.textview);
 			textView.setText("Sorry, connection error.");
 		}
-		
+
 	}
 
-	// Uploads XML from mbta.com, parses it. Returns string.
+	// Downloads XML from mbta.com, parses it for the nearest stop. Returns
+	// message.
 	private String loadStopListByLocation(String urlString)
 			throws XmlPullParserException, IOException {
 		InputStream stream = null;
@@ -664,17 +691,19 @@ public class FindStopActivity extends FragmentActivity implements
 			}
 		}
 
+		// Get (non-subway) route, subway route, or mode, as applicable
 		Bundle myBundle = getIntent().getExtras();
 		String route = null;
 		String subwayRoute = null;
 		String mode = null;
 		Stop firstStop = null;
-		String stopString;
+		String stopString = null;
 		if (myBundle != null) {
 			route = myBundle.getString("ROUTE");
 			subwayRoute = myBundle.getString("SUBWAY_ROUTE");
 			mode = myBundle.getString("MODE");
 		}
+		// If route specified, get stops on route
 		if (route != null) {
 			String urlString2 = STOPS_BY_ROUTE + API_KEY + "&route="
 					+ routeToId(route);
@@ -682,6 +711,7 @@ public class FindStopActivity extends FragmentActivity implements
 			while (stopsOnRoute == null) {
 				// Wait!
 			}
+			// Filter stops by whether they are on route
 			stopsNearLocation.retainAll(stopsOnRoute);
 			Stop[] stopArray = new Stop[stopsNearLocation.size()];
 			stopArray = stopsNearLocation.toArray(stopArray);
@@ -692,16 +722,22 @@ public class FindStopActivity extends FragmentActivity implements
 			} else {
 				stopString = "Sorry, there are no " + route + " stops near you";
 			}
-		} else if (subwayRoute != null) {
+		}
+		// If subway route specified, check whether any stops are on route
+		else if (subwayRoute != null) {
 			for (Stop stop : stopsNearLocation) {
 				String urlString3 = ROUTES_BY_STOP + API_KEY + "&stop="
 						+ stop.id;
 				routesModesServingStop = null;
-				loadPage(urlString3);
+				Pattern space = Pattern.compile("\\s+");
+				Matcher spaceMatcher = space.matcher(urlString3);
+				String urlString5 = spaceMatcher.replaceAll("%20");
+				loadPage(urlString5);
 				while (routesModesServingStop == null) {
 					// Wait!
 				}
 				for (Route routeServingStop : routesModesServingStop.routes) {
+					// Silver Line is special
 					if (subwayRoute.equals("silver")) {
 						if (routeServingStop.id.equals("741")
 								|| routeServingStop.id.equals("742")
@@ -729,12 +765,17 @@ public class FindStopActivity extends FragmentActivity implements
 				stopString = "Sorry, there are no " + subwayRoute
 						+ " stops near you";
 			}
-		} else if (mode != null) {
+		}
+		// If mode specified, check whether any stops use mode
+		else if (mode != null) {
 			for (Stop stop : stopsNearLocation) {
 				String urlString4 = ROUTES_BY_STOP + API_KEY + "&stop="
 						+ stop.id;
 				routesModesServingStop = null;
-				loadPage(urlString4);
+				Pattern space = Pattern.compile("\\s+");
+				Matcher spaceMatcher = space.matcher(urlString4);
+				String urlString6 = spaceMatcher.replaceAll("%20");
+				loadPage(urlString6);
 				while (routesModesServingStop == null) {
 					// Wait!
 				}
@@ -762,17 +803,21 @@ public class FindStopActivity extends FragmentActivity implements
 			firstStop = stopArray[0];
 			stopString = "The closest stop is " + firstStop.name;
 		}
+		// Display map, speak message
 		if (firstStop != null) {
 			Intent intent = new Intent(this, MapActivity.class);
+			intent.putExtra("ACTIVITY", "FindStopActivity");
 			intent.putExtra("NAME", firstStop.name);
 			intent.putExtra("LATITUDE", firstStop.latitude);
 			intent.putExtra("LONGITUDE", firstStop.longitude);
+			intent.putExtra("STOP_STRING", stopString);
 			startActivityForResult(intent, MAP_REQUEST);
 		}
 		tts.speak(stopString, TextToSpeech.QUEUE_FLUSH, null);
 		return stopString;
 	}
 
+	// Downloads XML from mbta.com, parses it for stops on a route.
 	private String loadStopListByRoute(String urlString)
 			throws XmlPullParserException, IOException {
 		InputStream stream = null;
@@ -793,6 +838,8 @@ public class FindStopActivity extends FragmentActivity implements
 		return "";
 	}
 
+	// Downloads XML from mbta.com, parses it for routes or modes serving a
+	// stop.
 	private String loadRouteListByStop(String urlString)
 			throws XmlPullParserException, IOException {
 		InputStream stream = null;
@@ -811,21 +858,6 @@ public class FindStopActivity extends FragmentActivity implements
 		}
 
 		return "";
-	}
-
-	// Given a string representation of a URL, sets up a connection and gets
-	// an input stream.
-	private InputStream downloadUrl(String urlString) throws IOException {
-		URL url = new URL(urlString);
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setReadTimeout(10000 /* milliseconds */);
-		conn.setConnectTimeout(15000 /* milliseconds */);
-		conn.setRequestMethod("GET");
-		conn.addRequestProperty("Accept", "application/xml");
-		conn.setDoInput(true);
-		// Starts the query
-		conn.connect();
-		return conn.getInputStream();
 	}
 
 	private String routeToId(String route) {

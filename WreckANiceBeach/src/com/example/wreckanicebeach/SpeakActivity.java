@@ -28,15 +28,7 @@ public class SpeakActivity extends Activity {
 		setContentView(R.layout.activity_speak);
 		// Show the Up button in the action bar.
 		setupActionBar();
-		if (SpeechRecognizer.isRecognitionAvailable(this)) {
-			Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-			intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-					RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-			startActivityForResult(intent, SPEECH_RECOGNITION_REQUEST);
-		} else {
-			TextView textView = (TextView) findViewById(R.id.textview);
-			textView.setText("Sorry, recognition not available.");
-		}
+		speak(this.getCurrentFocus());
 	}
 
 	/**
@@ -84,9 +76,25 @@ public class SpeakActivity extends Activity {
 			parse(this.getCurrentFocus(), results[0]);
 		}
 	}
+	
+	// Begin speech recognition
+	public void speak(View view) {
+		if (SpeechRecognizer.isRecognitionAvailable(this)) {
+			Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+			intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+					RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+			startActivityForResult(intent, SPEECH_RECOGNITION_REQUEST);
+		} else {
+			TextView textView = (TextView) findViewById(R.id.textview);
+			textView.setText("Sorry, recognition not available.");
+		}
+	}
 
 	public void parse(View view, String result) {
+		Log.d("SpeakActivity", result);
 		String findStop = ".*(find|stop|where|station).*";
+		Pattern directions = Pattern.compile("to (.*)");
+		Matcher directionsMatcher = directions.matcher(result);
 		if (result.matches(findStop)) {
 			Intent intent = new Intent(this, FindStopActivity.class);
 			Pattern route = Pattern
@@ -96,7 +104,6 @@ public class SpeakActivity extends Activity {
 			Matcher routeMatcher = route.matcher(result);
 			Matcher subwayRouteMatcher = subwayRoute.matcher(result);
 			Matcher modeMatcher = mode.matcher(result);
-			Log.d("SpeakActivity", result);
 			if (routeMatcher.find(0)) {
 				intent.putExtra("ROUTE", routeMatcher.group());
 			} else if (subwayRouteMatcher.find(0)) {
@@ -105,7 +112,19 @@ public class SpeakActivity extends Activity {
 				intent.putExtra("MODE", modeMatcher.group());
 			}
 			startActivity(intent);
-		} else {
+		} else if (directionsMatcher.find(0)) {
+			Intent intent = new Intent(this, GetDirectionsActivity.class);
+			Log.d("Destination", directionsMatcher.group(1));
+			intent.putExtra("DESTINATION", directionsMatcher.group(1));
+			Pattern origin = Pattern.compile("from (.*)");
+			Matcher originMatcher = origin.matcher(result.replace(directionsMatcher.group(1), ""));
+			if (originMatcher.find(0)) {
+				Log.d("Origin", originMatcher.group(1));
+				intent.putExtra("ORIGIN", originMatcher.group(1));
+			}
+			startActivity(intent);
+		}
+			else {
 			TextView textView = (TextView) findViewById(R.id.textview);
 			textView.setText(result);
 		}

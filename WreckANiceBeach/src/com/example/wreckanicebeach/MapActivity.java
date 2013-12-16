@@ -1,5 +1,8 @@
 package com.example.wreckanicebeach;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.wreckanicebeach.FindStopActivity.ErrorDialogFragment;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -9,6 +12,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import android.media.AudioManager;
 import android.os.Build;
@@ -37,22 +41,42 @@ public class MapActivity extends FragmentActivity implements
 			setupActionBar();
 			setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
+			Bundle myBundle = getIntent().getExtras();
+			if (myBundle.getString("ACTIVITY").equals("FindStopActivity")) {
+				String stopString = myBundle.getString("STOP_STRING");
+				TextView textView = (TextView) findViewById(R.id.textview);
+				textView.setText(stopString);
+			} else if (myBundle.getString("ACTIVITY").equals(
+					"GetDirectionsActivity")) {
+
+			}
+
 			// Get a handle to the Map Fragment
 			GoogleMap map = ((SupportMapFragment) getSupportFragmentManager()
 					.findFragmentById(R.id.map)).getMap();
 
-			Bundle myBundle = getIntent().getExtras();
-			String latitude = myBundle.getString("LATITUDE");
-			String longitude = myBundle.getString("LONGITUDE");
-			String name = myBundle.getString("NAME");
+			if (myBundle.getString("ACTIVITY").equals("FindStopActivity")) {
+				String latitude = myBundle.getString("LATITUDE");
+				String longitude = myBundle.getString("LONGITUDE");
+				String name = myBundle.getString("NAME");
 
-			LatLng latLng = new LatLng(Double.parseDouble(latitude),
-					Double.parseDouble(longitude));
+				LatLng latLng = new LatLng(Double.parseDouble(latitude),
+						Double.parseDouble(longitude));
 
-			map.setMyLocationEnabled(true);
-			map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
+				map.setMyLocationEnabled(true);
+				map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
 
-			map.addMarker(new MarkerOptions().title(name).position(latLng));
+				map.addMarker(new MarkerOptions().title(name).position(latLng));
+			} else if (myBundle.getString("ACTIVITY").equals(
+					"GetDirectionsActivity")) {
+				String polyline = myBundle.getString("POLYLINE");
+				List<LatLng> decodedPolyline = decodePoly(polyline);
+
+				map.setMyLocationEnabled(true);
+				
+				map.addPolyline(new PolylineOptions().geodesic(true))
+						.setPoints(decodedPolyline);
+			}
 		} else {
 			TextView textView = new TextView(this);
 			textView.setText("Sorry, location not available.");
@@ -131,7 +155,7 @@ public class MapActivity extends FragmentActivity implements
 		Toast.makeText(this, "Disconnected. Please re-connect.",
 				Toast.LENGTH_SHORT).show();
 	}
-	
+
 	private boolean servicesConnected() {
 		// Check that Google Play services is available
 		int resultCode = GooglePlayServicesUtil
@@ -162,6 +186,45 @@ public class MapActivity extends FragmentActivity implements
 			}
 			return false;
 		}
+	}
+
+	/*
+	 * decodePoly adapted from
+	 * http://jeffreysambells.com/2010/05/27/decoding-polylines
+	 * -from-google-maps-direction-api-with-java
+	 */
+	private List<LatLng> decodePoly(String encoded) {
+
+		List<LatLng> poly = new ArrayList<LatLng>();
+		int index = 0, len = encoded.length();
+		int lat = 0, lng = 0;
+
+		while (index < len) {
+			int b, shift = 0, result = 0;
+			do {
+				b = encoded.charAt(index++) - 63;
+				result |= (b & 0x1f) << shift;
+				shift += 5;
+			} while (b >= 0x20);
+			int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+			lat += dlat;
+
+			shift = 0;
+			result = 0;
+			do {
+				b = encoded.charAt(index++) - 63;
+				result |= (b & 0x1f) << shift;
+				shift += 5;
+			} while (b >= 0x20);
+			int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+			lng += dlng;
+
+			LatLng p = new LatLng((int) (((double) lat / 1E5) * 1E6),
+					(int) (((double) lng / 1E5) * 1E6));
+			poly.add(p);
+		}
+
+		return poly;
 	}
 
 }
