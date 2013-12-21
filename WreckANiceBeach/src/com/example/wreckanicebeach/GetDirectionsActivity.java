@@ -6,6 +6,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -30,15 +32,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Build;
 
-public class GetDirectionsActivity extends FragmentActivity implements
+public class GetDirectionsActivity extends ActionBarActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener,
 		TextToSpeech.OnInitListener {
@@ -62,6 +64,7 @@ public class GetDirectionsActivity extends FragmentActivity implements
 	private String serverTime = null;
 	private String destination = null;
 	private String origin = null;
+	private Directions directions;
 
 	public static class Step {
 		String travelMode;
@@ -322,7 +325,8 @@ public class GetDirectionsActivity extends FragmentActivity implements
 									continue;
 								}
 								String name6 = parser.getName();
-								if (name6.equals("short_name")) {
+								if (name6.equals("short_name")
+										|| name6.equals("name")) {
 									line = parser.nextText();
 									parser.nextTag();
 								} else if (name6.equals("agency")) {
@@ -468,7 +472,7 @@ public class GetDirectionsActivity extends FragmentActivity implements
 	@Override
 	protected void onStart() {
 		super.onStart();
-		
+
 		ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr
 				.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -477,7 +481,7 @@ public class GetDirectionsActivity extends FragmentActivity implements
 		boolean mobileConnected = networkInfo.isConnected();
 		Log.d("FindStopActivity", "Wifi connected: " + wifiConnected);
 		Log.d("FindStopActivity", "Mobile connected: " + mobileConnected);
-		
+
 		if (initFlag == false && (wifiConnected || mobileConnected)) {
 			initFlag = true;
 			String urlString = (SERVER_TIME + API_KEY);
@@ -493,8 +497,11 @@ public class GetDirectionsActivity extends FragmentActivity implements
 			if (destination != null && origin != null) {
 				String urlString2 = (GET_DIRECTIONS + serverTime
 						+ "&destination=" + destination + "&origin=" + origin);
-				Log.d("URL", urlString2);
-				loadPage(urlString2);
+				Pattern space = Pattern.compile("\\s+");
+				Matcher spaceMatcher = space.matcher(urlString2);
+				String urlString3 = spaceMatcher.replaceAll("%20");
+				Log.d("URL", urlString3);
+				loadPage(urlString3);
 			} else {
 				// Connect the client.
 				if (servicesConnected()) {
@@ -504,7 +511,7 @@ public class GetDirectionsActivity extends FragmentActivity implements
 					textView.setText("Sorry, location not available.");
 				}
 			}
-		} else {
+		} else if (!wifiConnected && !mobileConnected) {
 			TextView textView = (TextView) findViewById(R.id.textview);
 			textView.setText("Sorry, connection error.");
 		}
@@ -561,6 +568,9 @@ public class GetDirectionsActivity extends FragmentActivity implements
 			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
 			//
 			NavUtils.navigateUpFromSameTask(this);
+			return true;
+		case R.id.action_map:
+			loadMap(directions);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -645,14 +655,20 @@ public class GetDirectionsActivity extends FragmentActivity implements
 				String urlString2 = (GET_DIRECTIONS + serverTime
 						+ "&destination=" + destination + "&origin=" + latitude
 						+ "," + longitude);
-				Log.d("URL", urlString2);
-				loadPage(urlString2);
+				Pattern space = Pattern.compile("\\s+");
+				Matcher spaceMatcher = space.matcher(urlString2);
+				String urlString3 = spaceMatcher.replaceAll("%20");
+				Log.d("URL", urlString3);
+				loadPage(urlString3);
 			} else if (origin != null) {
 				String urlString2 = (GET_DIRECTIONS + serverTime
 						+ "&destination=" + latitude + "," + longitude
 						+ "&origin=" + origin);
-				Log.d("URL", urlString2);
-				loadPage(urlString2);
+				Pattern space = Pattern.compile("\\s+");
+				Matcher spaceMatcher = space.matcher(urlString2);
+				String urlString3 = spaceMatcher.replaceAll("%20");
+				Log.d("URL", urlString3);
+				loadPage(urlString3);
 			} else {
 				TextView textView = (TextView) findViewById(R.id.textview);
 				textView.setText("Sorry, need an origin or a destination.");
@@ -766,7 +782,7 @@ public class GetDirectionsActivity extends FragmentActivity implements
 		InputStream stream = null;
 		// Instantiate the parser
 		GoogleDirectionsParser googleDirectionsParser = new GoogleDirectionsParser();
-		Directions directions = null;
+		directions = null;
 
 		try {
 			stream = downloadUrl(urlString);
@@ -793,15 +809,34 @@ public class GetDirectionsActivity extends FragmentActivity implements
 			}
 			String output = (overviewInstructions + "\n"
 					+ directions.copyrights + "\n" + directions.warning);
-			Intent intent = new Intent(this, MapActivity.class);
-			intent.putExtra("ACTIVITY", "GetDirectionsActivity");
-			intent.putExtra("POLYLINE", directions.polyline);
-			startActivityForResult(intent, MAP_REQUEST);
+			loadMap(directions);
 			return output;
 		} else {
-			TextView textView = (TextView) findViewById(R.id.textview);
-			textView.setText("Sorry, could not find directions.");
-			return "";
+			return "Sorry, couldn't find directions.";
+		}
+	}
+
+	private void loadMap(Directions directions) {
+		Intent intent = new Intent(this, MapActivity.class);
+		String destination = null;
+		String origin = null;
+		Boolean mapFlag = true;
+
+		Bundle myBundle = getIntent().getExtras();
+		if (myBundle != null) {
+			destination = myBundle.getString("DESTINATION");
+			origin = myBundle.getString("ORIGIN");
+			mapFlag = myBundle.getBoolean("MAP_FLAG", true);
+		}
+
+		if (mapFlag == true) {
+			intent.putExtra("ACTIVITY", "GetDirectionsActivity");
+			intent.putExtra("POLYLINE", directions.polyline);
+			intent.putExtra("DESTINATION", destination);
+			intent.putExtra("ORIGIN", origin);
+			startActivityForResult(intent, MAP_REQUEST);
+		} else {
+			myBundle.remove("MAP_FLAG");
 		}
 	}
 

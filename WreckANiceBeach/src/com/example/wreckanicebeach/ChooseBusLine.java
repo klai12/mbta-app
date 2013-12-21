@@ -1,16 +1,16 @@
 package com.example.wreckanicebeach;
 
 import android.os.Bundle;
-import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 
-public class ChooseBusLine extends Activity {
+public class ChooseBusLine extends ActionBarActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +67,17 @@ public class ChooseBusLine extends Activity {
 			case (R.id.one_button):
 				routeId = "01";
 				break;
+			case (R.id.forty_seven_button):
+				routeId = "47";
+				break;
 			case (R.id.sixty_six_button):
 				routeId = "66";
+				break;
+			case (R.id.seventy_button):
+				routeId = "70";
+				break;
+			case (R.id.seventy_a_button):
+				routeId = "70A";
 				break;
 			case (R.id.seventy_three_button):
 				routeId = "73";

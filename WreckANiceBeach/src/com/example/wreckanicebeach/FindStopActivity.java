@@ -30,8 +30,8 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.Context;
@@ -40,7 +40,7 @@ import android.content.IntentSender;
 import android.os.Build;
 import android.speech.tts.TextToSpeech;
 
-public class FindStopActivity extends FragmentActivity implements
+public class FindStopActivity extends ActionBarActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener,
 		TextToSpeech.OnInitListener {
@@ -65,6 +65,8 @@ public class FindStopActivity extends FragmentActivity implements
 	private List<Stop> stopsNearLocation;
 	private List<Stop> stopsOnRoute;
 	private ListRouteMode routesModesServingStop;
+	private Stop firstStop;
+	private String stopString;
 
 	public static class Stop {
 		public final String id;
@@ -505,6 +507,9 @@ public class FindStopActivity extends FragmentActivity implements
 			//
 			NavUtils.navigateUpFromSameTask(this);
 			return true;
+		case R.id.action_map:
+			loadMap(firstStop, stopString);
+			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -696,12 +701,14 @@ public class FindStopActivity extends FragmentActivity implements
 		String route = null;
 		String subwayRoute = null;
 		String mode = null;
-		Stop firstStop = null;
-		String stopString = null;
+		boolean mapFlag = true;
+		firstStop = null;
+		stopString = null;
 		if (myBundle != null) {
 			route = myBundle.getString("ROUTE");
 			subwayRoute = myBundle.getString("SUBWAY_ROUTE");
 			mode = myBundle.getString("MODE");
+			mapFlag = myBundle.getBoolean("MAP_FLAG", true);
 		}
 		// If route specified, get stops on route
 		if (route != null) {
@@ -804,16 +811,12 @@ public class FindStopActivity extends FragmentActivity implements
 			stopString = "The closest stop is " + firstStop.name;
 		}
 		// Display map, speak message
-		if (firstStop != null) {
-			Intent intent = new Intent(this, MapActivity.class);
-			intent.putExtra("ACTIVITY", "FindStopActivity");
-			intent.putExtra("NAME", firstStop.name);
-			intent.putExtra("LATITUDE", firstStop.latitude);
-			intent.putExtra("LONGITUDE", firstStop.longitude);
-			intent.putExtra("STOP_STRING", stopString);
-			startActivityForResult(intent, MAP_REQUEST);
+		if (mapFlag == true) {
+			if (firstStop != null) {
+				loadMap(firstStop, stopString);
+			}
+			tts.speak(stopString, TextToSpeech.QUEUE_FLUSH, null);
 		}
-		tts.speak(stopString, TextToSpeech.QUEUE_FLUSH, null);
 		return stopString;
 	}
 
@@ -858,6 +861,30 @@ public class FindStopActivity extends FragmentActivity implements
 		}
 
 		return "";
+	}
+
+	private void loadMap(Stop firstStop, String stopString) {
+		Intent intent = new Intent(this, MapActivity.class);
+		String route = null;
+		String subwayRoute = null;
+		String mode = null;
+
+		Bundle myBundle = getIntent().getExtras();
+		if (myBundle != null) {
+			route = myBundle.getString("ROUTE");
+			subwayRoute = myBundle.getString("SUBWAY_ROUTE");
+			mode = myBundle.getString("MODE");
+		}
+
+		intent.putExtra("ACTIVITY", "FindStopActivity");
+		intent.putExtra("NAME", firstStop.name);
+		intent.putExtra("LATITUDE", firstStop.latitude);
+		intent.putExtra("LONGITUDE", firstStop.longitude);
+		intent.putExtra("STOP_STRING", stopString);
+		intent.putExtra("ROUTE", route);
+		intent.putExtra("SUBWAY_ROUTE", subwayRoute);
+		intent.putExtra("MODE", mode);
+		startActivityForResult(intent, MAP_REQUEST);
 	}
 
 	private String routeToId(String route) {

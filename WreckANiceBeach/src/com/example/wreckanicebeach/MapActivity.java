@@ -11,6 +11,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -19,19 +20,22 @@ import android.os.Build;
 import android.os.Bundle;
 import android.annotation.TargetApi;
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.IntentSender;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MapActivity extends FragmentActivity implements
+public class MapActivity extends ActionBarActivity implements
 		GooglePlayServicesClient.ConnectionCallbacks,
 		GooglePlayServicesClient.OnConnectionFailedListener {
 
 	private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -71,16 +75,70 @@ public class MapActivity extends FragmentActivity implements
 					"GetDirectionsActivity")) {
 				String polyline = myBundle.getString("POLYLINE");
 				List<LatLng> decodedPolyline = decodePoly(polyline);
+				LatLng[] decodedPolylineArray = new LatLng[decodedPolyline
+						.size()];
+				decodedPolylineArray = decodedPolyline
+						.toArray(decodedPolylineArray);
+				double minLat = decodedPolylineArray[0].latitude;
+				double maxLat = decodedPolylineArray[0].latitude;
+				double minLng = decodedPolylineArray[0].longitude;
+				double maxLng = decodedPolylineArray[0].longitude;
+
+				for (LatLng latlng : decodedPolyline) {
+					if (latlng.latitude < minLat) {
+						minLat = latlng.latitude;
+					} else if (latlng.latitude > maxLat) {
+						maxLat = latlng.latitude;
+					}
+					if (latlng.longitude < minLng) {
+						minLng = latlng.longitude;
+					} else if (latlng.longitude > maxLng) {
+						maxLng = latlng.longitude;
+					}
+				}
+
+				LatLng southwest = new LatLng(minLat, minLng);
+				LatLng northeast = new LatLng(maxLat, maxLng);
+				LatLngBounds bounds = new LatLngBounds(southwest, northeast);
+
+				Display display = getWindowManager().getDefaultDisplay();
 
 				map.setMyLocationEnabled(true);
-				
-				map.addPolyline(new PolylineOptions().geodesic(true))
+				map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds,
+						(display.getWidth() - 20), (display.getHeight() - 20), 10));
+				map.addPolyline(new PolylineOptions().geodesic(true).width(5))
 						.setPoints(decodedPolyline);
 			}
 		} else {
 			TextView textView = new TextView(this);
 			textView.setText("Sorry, location not available.");
 			setContentView(textView);
+		}
+	}
+	
+	@Override
+	public Intent getSupportParentActivityIntent() {
+		Bundle myBundle = getIntent().getExtras();
+		if (myBundle.getString("ACTIVITY").equals("FindStopActivity")) {
+			Intent intent = new Intent(this, FindStopActivity.class);
+			String route = myBundle.getString("ROUTE");
+			String subwayRoute = myBundle.getString("SUBWAY_ROUTE");
+			String mode = myBundle.getString("MODE");
+			
+			intent.putExtra("ROUTE", route);
+			intent.putExtra("SUBWAY_ROUTE", subwayRoute);
+			intent.putExtra("MODE", mode);
+			intent.putExtra("MAP_FLAG", false);
+			return intent;
+		} else {
+			Intent intent = new Intent(this, GetDirectionsActivity.class);
+			String destination = myBundle.getString("DESTINATION");
+			String origin = myBundle.getString("ORIGIN");
+			
+			intent.putExtra("DESTINATION", destination);
+			intent.putExtra("ORIGIN", origin);
+			intent.putExtra("MAP_FLAG", false);
+			return intent;
 		}
 	}
 
@@ -219,8 +277,7 @@ public class MapActivity extends FragmentActivity implements
 			int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
 			lng += dlng;
 
-			LatLng p = new LatLng((int) (((double) lat / 1E5) * 1E6),
-					(int) (((double) lng / 1E5) * 1E6));
+			LatLng p = new LatLng(((double) lat / 1E5), ((double) lng / 1E5));
 			poly.add(p);
 		}
 

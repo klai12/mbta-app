@@ -1,17 +1,17 @@
 package com.example.wreckanicebeach;
 
 import android.os.Bundle;
-import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 
-public class ChooseSubwayLine extends Activity {
+public class ChooseSubwayLine extends ActionBarActivity {
 
 	@SuppressLint("NewApi")
 	@Override
@@ -55,23 +55,29 @@ public class ChooseSubwayLine extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	public void toShowSchedule(View view) {
 		String routeId = getRouteId(view);
-    	Intent intent = new Intent(this, ShowSchedule.class);
-    	intent.putExtra("ROUTE_ID", routeId);
-    	startActivity(intent);
-    }
-	
+		Intent intent = new Intent(this, ShowSchedule.class);
+		intent.putExtra("ROUTE_ID", routeId);
+		startActivity(intent);
+	}
+
 	private String getRouteId(View view) {
 		String routeId = "";
 		switch (view.getId()) {
-			case (R.id.redButton):
-				routeId = "931_";
-				break;
-			case (R.id.greenButton):
-				routeId = "810_";
-				break;
+		case (R.id.redButton):
+			routeId = "931_";
+			break;
+		case (R.id.greenButton):
+			routeId = "810_";
+			break;
+		case (R.id.orangeButton):
+			routeId = "903_";
+			break;
+		case (R.id.blueButton):
+			routeId = "946_";
+			break;
 		}
 		return routeId;
 	}

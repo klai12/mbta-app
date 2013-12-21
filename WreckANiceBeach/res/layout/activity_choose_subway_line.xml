@@ -14,17 +14,58 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="toShowSchedule"
         android:text="@string/red"
-        android:onClick="toShowSchedule" >
+        android:textColor="@android:color/white" >
     </Button>
-    
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
     <Button
         android:id="@+id/greenButton"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="toShowSchedule"
         android:text="@string/green"
-        android:onClick="toShowSchedule" >
+        android:textColor="@android:color/white" >
+    </Button>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
+    <Button
+        android:id="@+id/orangeButton"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="toShowSchedule"
+        android:text="@string/orange"
+        android:textColor="@android:color/white" >
+    </Button>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
+    <Button
+        android:id="@+id/blueButton"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="toShowSchedule"
+        android:text="@string/blue"
+        android:textColor="@android:color/white" >
     </Button>
 
 </LinearLayout>

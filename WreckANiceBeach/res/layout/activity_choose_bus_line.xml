@@ -1,48 +1,119 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".ChooseBusLine" >
-    
+
     <Button
         android:id="@+id/one_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="toShowSchedule"
         android:text="@string/one"
-        android:onClick="toShowSchedule" >
+        android:textColor="@android:color/white" >
     </Button>
-    
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
+    <Button
+        android:id="@+id/forty_seven_button"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="toShowSchedule"
+        android:text="@string/forty_seven"
+        android:textColor="@android:color/white" >
+    </Button>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
     <Button
         android:id="@+id/sixty_six_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="toShowSchedule"
         android:text="@string/sixty_six"
-        android:onClick="toShowSchedule" >
+        android:textColor="@android:color/white" >
     </Button>
-    
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
+    <Button
+        android:id="@+id/seventy_button"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="toShowSchedule"
+        android:text="@string/seventy"
+        android:textColor="@android:color/white" >
+    </Button>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
+    <Button
+        android:id="@+id/seventy_a_button"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="toShowSchedule"
+        android:text="@string/seventy_a"
+        android:textColor="@android:color/white" >
+    </Button>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
     <Button
         android:id="@+id/seventy_three_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="toShowSchedule"
         android:text="@string/seventy_three"
-        android:onClick="toShowSchedule" >
+        android:textColor="@android:color/white" >
     </Button>
-    
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
     <Button
         android:id="@+id/seventy_four_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:onClick="toShowSchedule"
         android:text="@string/seventy_four"
-        android:onClick="toShowSchedule" >
+        android:textColor="@android:color/white" >
     </Button>
 
 </LinearLayout>

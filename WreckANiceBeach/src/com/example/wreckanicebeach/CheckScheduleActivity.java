@@ -1,17 +1,17 @@
 package com.example.wreckanicebeach;
 
 import android.os.Bundle;
-import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 
-public class CheckScheduleActivity extends Activity {
+public class CheckScheduleActivity extends ActionBarActivity {
 
 	@SuppressLint("NewApi")
 	@Override
