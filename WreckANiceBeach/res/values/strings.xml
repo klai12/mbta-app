@@ -27,12 +27,17 @@
     <string name="orange">Orange</string>
     <string name="blue">Blue</string>
     <string name="silver">Silver</string>
-    <string name="title_activity_show_subway_schedule">ShowSubwayScheduleActivity</string>
-    <string name="title_activity_show_schedule">ShowSchedule</string>
+    <string name="title_activity_show_subway_schedule">Check Schedule</string>
+    <string name="title_activity_show_schedule">Check Schedule</string>
     <string name="connection_error">Sorry, connection error.</string>
     <string name="xml_error">Sorry, XML error.</string>
     <string name="title_activity_speak">Speak</string>
     <string name="title_activity_map">Map</string>
     <string name="action_map">Show Map</string>
+    <string name="title_activity_get_origin_destination">Get Directions</string>
+    <string name="origin">Origin</string>
+    <string name="destination">Destination</string>
+    <string name="use_current_location">Use current location</string>
+    <string name="empty"></string>
 
 </resources>

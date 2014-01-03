@@ -33,7 +33,7 @@ public class MainActivity extends ActionBarActivity {
     }
     
     public void toGetDirections(View view) {
-    	Intent intent = new Intent(this, GetDirectionsActivity.class);
+    	Intent intent = new Intent(this, GetOriginDestinationActivity.class);
     	startActivity(intent);
     }
     

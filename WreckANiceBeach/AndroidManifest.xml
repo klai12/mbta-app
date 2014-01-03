@@ -79,7 +79,8 @@
             android:parentActivityName="com.example.wreckanicebeach.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.wreckanicebeach.MainActivity" /> >
+                android:value="com.example.wreckanicebeach.MainActivity" />
+ >
         </activity>
         <activity
             android:name="com.example.wreckanicebeach.SpeakActivity"
@@ -95,13 +96,22 @@
             android:parentActivityName="com.example.wreckanicebeach.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.wreckanicebeach.MainActivity" /> >
+                android:value="com.example.wreckanicebeach.MainActivity" />
+ >
         </activity>
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyCFa_CcwE1nzq06gE_dehwGNhUt-egwwxA" />
 
+        <activity
+            android:name="com.example.wreckanicebeach.GetOriginDestinationActivity"
+            android:label="@string/title_activity_get_origin_destination"
+            android:parentActivityName="com.example.wreckanicebeach.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.wreckanicebeach.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
